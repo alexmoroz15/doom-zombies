@@ -11,12 +11,12 @@ class ZombieBasic : ZombieMan
 		Goto See;
 	}
 	
-	override void Die(Actor source, Actor inflictor, int dmgflags = 0, Name MeansOfDeath = 'none') {
+	override void Die(Actor source, Actor inflictor, int dmgflags, Name MeansOfDeath) {
 		ACS_NamedExecuteAlways("On Zombie Death", 0, source.tid, 0, 0);
 		Super.Die(source, inflictor, dmgflags, MeansOfDeath);
 	}
 	
-	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags = 0, double angle = 0) {
+	override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle) {
 		ACS_NamedExecuteAlways("On Zombie Damaged", 0, source.tid, 0, 0);
 		return Super.DamageMobj(inflictor, source, damage, mod, flags, angle);
 	}
