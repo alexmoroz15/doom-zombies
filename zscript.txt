@@ -1,1 +1,7 @@
+version "4.7.1"
+
 #include "zscript/actors/zombiebasic.zs"
+
+#include "zscript/ui/zombiestatusbar.zs"
+
+#include "zscript/damagehandler.zs"
