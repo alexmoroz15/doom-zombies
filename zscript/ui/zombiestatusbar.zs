@@ -20,34 +20,45 @@ class ZombieStatusBar : DoomStatusBar
 		let playerPos = cplayer.mo.pos;
 		
 		let focalLen = tan(horizFOV / 2) / 2;
-		let focalVec = (focalLen * cos(viewAngle), focalLen * sin(viewAngle));
-		let focalPerpVec = (focalVec.y, -focalVec.x);
+		let cosAngle = cos(viewAngle);
+		let sinAngle = sin(viewAngle);
+		let cosPitch = cos(viewPitch);
+		let sinPitch = sin(viewPitch);
+		
+		let focalNormVec = (cosAngle * cosPitch, sinAngle * cosPitch, sinPitch);
+		let focalVec = focalLen * focalNormVec;
+		
+		let xNormVec = (sinAngle, -cosAngle, 0);
+		let yNormVec = xNormVec cross focalNormVec;
 		
 		let aspectRatio = screen.GetAspectRatio();
 		
 		DamageNumObj dmgnumobj;
 		while(dmgnumobj = DamageNumObj(ti.Next()))
 		{
-			let targVec = cplayer.mo.Vec2To(dmgnumobj.target);
+			let targVec = cplayer.mo.Vec3To(dmgnumobj.target);
 			if (focalVec dot targVec == 0) {
 				continue;
 			}
-			let perspVec = focalLen * focalLen / (focalVec dot targVec) * targVec - focalVec;
-			let horizOffset = perspVec.Length();
+			let focalVecDotTargVec = focalVec dot targVec;
+			let perspVec = (focalLen * focalLen * targVec - focalVecDotTargVec * focalVec) / abs(focalVecDotTargVec);
+			let horizOffset = perspVec dot xNormVec;
+			let vertOffset = perspVec dot yNormVec;
 			if (horizOffset > aspectRatio * 3 / 8) {
 				continue;
 			}
-			if (focalPerpVec dot targVec < 0) {
-				horizOffset = -horizOffset;
-			}
 			
-			DrawTextScaled(bigfont, Font.CR_RED, (0.5 + horizOffset, 0.5), FormatNumber(dmgnumobj.damage), (1.0, 1.0));
+			DrawTextScaled(bigfont, Font.CR_RED, (0.5 + horizOffset, 0.5 + vertOffset), FormatNumber(dmgnumobj.damage), (1.0, 1.0));
 			
 			cnt++;
 		}
 		
 		let str = FormatNumber(cnt);
 		DrawTextScaled(bigfont, Font.CR_RED, (0.5, 0.5), str, (2.0, 1.0));
+	}
+	
+	double abs(double x) {
+		return x < 0 ? -x : x;
 	}
 	
 	void DrawTextScaled (Font fnt, int fontColor, Vector2 relPos, String str, Vector2 scale)
