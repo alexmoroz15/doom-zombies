@@ -17,7 +17,7 @@ class ZombieStatusBar : DoomStatusBar
 		let horizFOV = cplayer.fov;
 		let viewAngle = cplayer.mo.angle;
 		let viewPitch = cplayer.mo.pitch;
-		let playerPos = cplayer.mo.pos;
+		//let playerPos = cplayer.mo.pos;
 		
 		let focalLen = tan(horizFOV / 2) / 2;
 		let cosAngle = cos(viewAngle);
@@ -25,25 +25,31 @@ class ZombieStatusBar : DoomStatusBar
 		let cosPitch = cos(viewPitch);
 		let sinPitch = sin(viewPitch);
 		
-		let focalNormVec = (cosAngle * cosPitch, sinAngle * cosPitch, sinPitch);
+		let focalNormVec = (cosAngle * cosPitch, sinAngle * cosPitch, -sinPitch);
 		let focalVec = focalLen * focalNormVec;
 		
 		let xNormVec = (sinAngle, -cosAngle, 0);
-		let yNormVec = xNormVec cross focalNormVec;
+		let yNormVec = focalNormVec cross xNormVec;
 		
 		let aspectRatio = screen.GetAspectRatio();
+		
+		console.printf("Level pixel_stretch: %f", level.pixelstretch);
 		
 		DamageNumObj dmgnumobj;
 		while(dmgnumobj = DamageNumObj(ti.Next()))
 		{
 			let targVec = cplayer.mo.Vec3To(dmgnumobj.target);
+			//console.printf("dx: %f, dy: %f, dz: %f", targVec.x, targVec.y, targVec.z);
 			if (focalVec dot targVec == 0) {
 				continue;
 			}
 			let focalVecDotTargVec = focalVec dot targVec;
 			let perspVec = (focalLen * focalLen * targVec - focalVecDotTargVec * focalVec) / abs(focalVecDotTargVec);
 			let horizOffset = perspVec dot xNormVec;
-			let vertOffset = perspVec dot yNormVec;
+			
+			// I think my math is off somewhere, but I'm not sure where. 
+			// Some sort of scale factor is necessary, and possibly related to aspect ratio.
+			let vertOffset = perspVec dot yNormVec * 1.66; 
 			if (horizOffset > aspectRatio * 3 / 8) {
 				continue;
 			}
