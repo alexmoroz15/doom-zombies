@@ -7,7 +7,7 @@ class DamageHandler : EventHandler
 			let dmgnumobj = new("DamageNumObj");
 			dmgnumobj.damage = e.damage;
 			dmgnumobj.target = e.thing;
-			dmgnumobj.lifetime = 70;
+			dmgnumobj.lifetime = 35 * 10;
 			dmgnumobj.ChangeStatNum(Thinker.STAT_USER);
 		}
 	}
