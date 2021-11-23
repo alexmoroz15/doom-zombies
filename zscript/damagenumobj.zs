@@ -1,7 +1,8 @@
 class DamageNumObj : Thinker
 {
 	int damage;
-	Actor target;
+	//Actor target;
+	vector3 targetPos;
 	int lifetime;
 	
 	override void Tick()
