@@ -1,5 +1,10 @@
 version "4.6"
 
+#include "zscript/libeye/projector.txt"
+#include "zscript/libeye/projector gl.txt"
+#include "zscript/libeye/projector planar.txt"
+#include "zscript/libeye/viewport.txt"
+
 #include "zscript/actors/zombiebasic.zs"
 
 #include "zscript/ui/zombiestatusbar.zs"
