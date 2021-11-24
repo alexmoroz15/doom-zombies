@@ -20,9 +20,6 @@ class DamageHandler : EventHandler
 		Super.WorldThingDamaged(e);
 
 		let damageSource = e.damageSource;
-		if (!damageSource) {
-			return;
-		}
 
 		for (int i = 0; i < maxplayers; i++) {
 			if (!playeringame[i]) {
@@ -38,7 +35,7 @@ class DamageHandler : EventHandler
 			}
 
 			if (damageSource is "PlayerPawn") {
-				if (damageSource == player[i].mo) {
+				if (damageSource == players[i].mo) {
 					// Actor damaged by this player
 					scoreTokenItem.Amount += 10;
 				} else {
