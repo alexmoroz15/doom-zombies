@@ -10,17 +10,12 @@ class DamageHandler : EventHandler
 
 	override void WorldThingDamaged(WorldEvent e)
 	{
-		/*
-		let damageSource = e.damageSource;
-		if (damageSource && damageSource == players[consoleplayer].mo) {
-			let dmgnumobj = new("DamageNumObj");
-			dmgnumobj.damage = e.damage;
-			//dmgnumobj.target = e.thing;
-			dmgnumobj.targetPos = e.thing.pos;
-			dmgnumobj.lifetime = 35 * 10;
-			dmgnumobj.ChangeStatNum(Thinker.STAT_USER);
-		}
-		*/
+		let dmgnumobj = new("DamageNumObj");
+		dmgnumobj.damage = e.damage;
+		dmgnumobj.targetPos = e.thing.pos;
+		dmgnumobj.lifetime = 35 * 2;
+		dmgnumobj.ChangeStatNum(Thinker.STAT_USER);
+
 		// Give the correct number of points to the correct player
 		Super.WorldThingDamaged(e);
 
@@ -29,33 +24,34 @@ class DamageHandler : EventHandler
 			return;
 		}
 
-		if (damageSource is "PlayerPawn") {
-			for (int i = 0; i < maxplayers; i++) {
-				if (playeringame[i]) {
-					let scoreTokenItem = players[i].mo.FindInventory("ScoreToken");
-					if (!scoreTokenItem) {
-						scoreTokenItem = players[i].mo.GiveInventoryType("ScoreToken");
-						if (!scoreTokenItem) {
-							continue;
-						}
-					}
-					scoreTokenItem.Amount += 10;
+		for (int i = 0; i < maxplayers; i++) {
+			if (!playeringame[i]) {
+				continue;
+			}
+
+			let scoreTokenItem = players[i].mo.FindInventory("ScoreToken");
+			if (!scoreTokenItem) {
+				scoreTokenItem = players[i].mo.GiveInventoryType("ScoreToken");
+				if (!scoreTokenItem) {
+					continue;
 				}
 			}
-		} else {
-			for (int i = 0; i < maxplayers; i++) {
-				if (playeringame[i]) {
-					let scoreTokenItem = players[i].mo.FindInventory("ScoreToken");
-					if (!scoreTokenItem) {
-						scoreTokenItem = players[i].mo.GiveInventoryType("ScoreToken");
-						if (!scoreTokenItem) {
-							continue;
-						}
-					}
+
+			if (damageSource is "PlayerPawn") {
+				if (damageSource == player[i].mo) {
+					// Actor damaged by this player
+					scoreTokenItem.Amount += 10;
+				} else {
+					// Actor damaged by another player
 					scoreTokenItem.Amount += 5;
 				}
+			} else {
+				// Actor damaged by other means
+				scoreTokenItem.Amount += 1;
 			}
 		}
+
+		
 	}
 	
 	override void RenderUnderlay(RenderEvent e)
