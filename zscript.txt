@@ -6,6 +6,7 @@ version "4.6"
 #include "zscript/libeye/viewport.txt"
 
 #include "zscript/actors/zombiebasic.zs"
+#include "zscript/actors/scoretoken.zs"
 
 #include "zscript/ui/zombiestatusbar.zs"
 
