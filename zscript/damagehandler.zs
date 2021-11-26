@@ -14,6 +14,8 @@ class DamageHandler : EventHandler
 	const DMG_ActorOther = 8;
 	const DMG_Other = 9;
 
+	const DEBUG = false;
+
 	override void OnRegister() {
 		gl_proj = new("Le_GlScreen");
 	}
@@ -30,6 +32,11 @@ class DamageHandler : EventHandler
 
 		// Give the correct number of points to the correct player
 		AwardDamagePoints(e);
+	}
+
+	override void WorldTHingDied(WorldEvent e) {
+		Super.WorldThingDied(e);
+		AwardDamagePoints(e, true);
 	}
 	
 	void AwardDamagePoints(WorldEvent e, bool killed = false) {
@@ -54,55 +61,73 @@ class DamageHandler : EventHandler
 					if (damageSource.target == players[i].mo) {
 						// Actor damaged by barrel destroyed by this player
 						scoreTokenItem.Amount += DMG_PlayerThisBarrel;
-						console.printf("%s damaged by a barrel destroyed by %s, this player with %s", 
-							e.thing.GetClassName(), 
-							players[i].GetUserName(),
-							players[i].ReadyWeapon.GetClassName());
+						if (DEBUG) {
+							console.printf("%s damaged by a barrel destroyed by %s, this player with %s", 
+								e.thing.GetClassName(), 
+								players[i].GetUserName(),
+								players[i].ReadyWeapon.GetClassName());
+						}
 					} else {
 						// Actor damaged by barrel destroyed by another player
 						scoreTokenItem.Amount += DMG_PlayerOtherBarrel;
-						console.printf("%s damaged by a barrel destroyed by %s, another player with %s", 
-							e.thing.GetClassName(), 
-							players[i].GetUserName(),
-							players[i].ReadyWeapon.GetClassName());
+						if (DEBUG) {
+							console.printf("%s damaged by a barrel destroyed by %s, another player with %s", 
+								e.thing.GetClassName(), 
+								players[i].GetUserName(),
+								players[i].ReadyWeapon.GetClassName());
+						}
 					}
 				} else if (damageSource == e.thing) {
 					// Actor damaged by barrel destroyed by itself
 					scoreTokenItem.Amount += DMG_ActorThisBarrel;
-					console.printf("%s damaged by a barrel destroyed by itself", e.thing.GetClassName());
+					if (DEBUG) {
+						console.printf("%s damaged by a barrel destroyed by itself", e.thing.GetClassName());
+					}
 				} else if (damageSource is "Actor") {
 					// Actor damamged by barrel destroyed by another actor
 					scoreTokenItem.Amount += DMG_ActorOtherBarrel;
-					console.printf("%s damaged by a barrel destroyed by %s", e.thing.GetClassName(), damageSource.GetClassName());
+					if (DEBUG) {
+						console.printf("%s damaged by a barrel destroyed by %s", e.thing.GetClassName(), damageSource.GetClassName());
+					}
 				} else {
 					// Actor damaged by barrel destroyed by other means
 					scoreTokenItem.Amount += DMG_OtherBarrel;
-					console.printf("%s damaged by a barrel destroyed by other means", e.thing.GetClassName());
+					if (DEBUG) {
+						console.printf("%s damaged by a barrel destroyed by other means", e.thing.GetClassName());
+					}
 				}
 			} else if (damageSource is "PlayerPawn") {
 				if (damageSource == players[i].mo) {
 					// Actor damaged by this player
 					scoreTokenItem.Amount += DMG_PlayerThis;
-					console.printf("%s damaged by %s, this player with %s", 
-						e.thing.GetClassName(),
-						players[i].GetUserName(),
-						players[i].ReadyWeapon.GetClassName());
+					if (DEBUG) {
+						console.printf("%s damaged by %s, this player with %s", 
+							e.thing.GetClassName(),
+							players[i].GetUserName(),
+							players[i].ReadyWeapon.GetClassName());
+					}
 				} else {
 					// Actor damaged by another player
 					scoreTokenItem.Amount += DMG_PlayerOther;
-					console.printf("%s damaged by %s, another player with %s", 
+					if (DEBUG) {
+						console.printf("%s damaged by %s, another player with %s", 
 						e.thing.GetClassName(),
 						players[i].GetUserName(),
 						players[i].ReadyWeapon.GetClassName());
+					}
 				}	
 			} else if (damageSource is "Actor") {
 				// Actor damaged by another actor
 				scoreTokenItem.Amount += DMG_ActorOther;
-				console.printf("%s damaged by %s", e.thing.GetClassName(), damageSource.GetClassName());
+				if (DEBUG) {
+					console.printf("%s damaged by %s", e.thing.GetClassName(), damageSource.GetClassName());
+				}
 			} else {
 				// Actor damaged by other means
 				scoreTokenItem.Amount += DMG_Other;
-				console.printf("%s damaged by other means", e.thing.GetClassName());
+				if (DEBUG) {
+					console.printf("%s damaged by other means", e.thing.GetClassName());	
+				}
 			}
 		}
 	}
