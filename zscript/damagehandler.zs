@@ -4,12 +4,24 @@ class DamageHandler : EventHandler
 	protected Le_Viewport viewport;
 	protected Vector3 base_pos;
 
+	const DMG_PlayerThisBarrel = 1;
+	const DMG_PlayerOtherBarrel = 2;
+	const DMG_ActorThisBarrel = 3;
+	const DMG_ActorOtherBarrel = 4;
+	const DMG_OtherBarrel = 5;
+	const DMG_PlayerThis = 6;
+	const DMG_PlayerOther = 7;
+	const DMG_ActorOther = 8;
+	const DMG_Other = 9;
+
 	override void OnRegister() {
 		gl_proj = new("Le_GlScreen");
 	}
 
 	override void WorldThingDamaged(WorldEvent e)
 	{
+		Super.WorldThingDamaged(e);
+
 		let dmgnumobj = new("DamageNumObj");
 		dmgnumobj.damage = e.damage;
 		dmgnumobj.targetPos = e.thing.pos;
@@ -17,10 +29,12 @@ class DamageHandler : EventHandler
 		dmgnumobj.ChangeStatNum(Thinker.STAT_USER);
 
 		// Give the correct number of points to the correct player
-		Super.WorldThingDamaged(e);
-
-		let damageSource = e.damageSource;
+		AwardDamagePoints(e);
+	}
+	
+	void AwardDamagePoints(WorldEvent e, bool killed = false) {
 		let inflictor = e.inflictor;
+		let damageSource = e.damageSource;
 
 		for (int i = 0; i < maxplayers; i++) {
 			if (!playeringame[i]) {
@@ -35,34 +49,18 @@ class DamageHandler : EventHandler
 				}
 			}
 
-			if (damageSource is "PlayerPawn") {
-				if (damageSource == players[i].mo) {
-					// Actor damaged by this player
-					scoreTokenItem.Amount += 1;
-					console.printf("%s damaged by %s, this player with %s", 
-						e.thing.GetClassName(),
-						players[i].GetUserName(),
-						players[i].ReadyWeapon.GetClassName());
-				} else {
-					// Actor damaged by another player
-					scoreTokenItem.Amount += 2;
-					console.printf("%s damaged by %s, another player with %s", 
-						e.thing.GetClassName(),
-						players[i].GetUserName(),
-						players[i].ReadyWeapon.GetClassName());
-				}
-			} else if (inflictor is "ExplosiveBarrel") {
+			if (inflictor is "ExplosiveBarrel") {
 				if (damageSource.target is "PlayerPawn") {
 					if (damageSource.target == players[i].mo) {
 						// Actor damaged by barrel destroyed by this player
-						scoreTokenItem.Amount += 4;
+						scoreTokenItem.Amount += DMG_PlayerThisBarrel;
 						console.printf("%s damaged by a barrel destroyed by %s, this player with %s", 
 							e.thing.GetClassName(), 
 							players[i].GetUserName(),
 							players[i].ReadyWeapon.GetClassName());
 					} else {
 						// Actor damaged by barrel destroyed by another player
-						scoreTokenItem.Amount += 8;
+						scoreTokenItem.Amount += DMG_PlayerOtherBarrel;
 						console.printf("%s damaged by a barrel destroyed by %s, another player with %s", 
 							e.thing.GetClassName(), 
 							players[i].GetUserName(),
@@ -70,29 +68,45 @@ class DamageHandler : EventHandler
 					}
 				} else if (damageSource == e.thing) {
 					// Actor damaged by barrel destroyed by itself
-					scoreTokenItem.Amount += 16;
+					scoreTokenItem.Amount += DMG_ActorThisBarrel;
 					console.printf("%s damaged by a barrel destroyed by itself", e.thing.GetClassName());
 				} else if (damageSource is "Actor") {
 					// Actor damamged by barrel destroyed by another actor
-					scoreTokenItem.Amount += 32;
+					scoreTokenItem.Amount += DMG_ActorOtherBarrel;
 					console.printf("%s damaged by a barrel destroyed by %s", e.thing.GetClassName(), damageSource.GetClassName());
 				} else {
 					// Actor damaged by barrel destroyed by other means
-					scoreTokenItem.Amount += 64;
+					scoreTokenItem.Amount += DMG_OtherBarrel;
 					console.printf("%s damaged by a barrel destroyed by other means", e.thing.GetClassName());
 				}
+			} else if (damageSource is "PlayerPawn") {
+				if (damageSource == players[i].mo) {
+					// Actor damaged by this player
+					scoreTokenItem.Amount += DMG_PlayerThis;
+					console.printf("%s damaged by %s, this player with %s", 
+						e.thing.GetClassName(),
+						players[i].GetUserName(),
+						players[i].ReadyWeapon.GetClassName());
+				} else {
+					// Actor damaged by another player
+					scoreTokenItem.Amount += DMG_PlayerOther;
+					console.printf("%s damaged by %s, another player with %s", 
+						e.thing.GetClassName(),
+						players[i].GetUserName(),
+						players[i].ReadyWeapon.GetClassName());
+				}	
 			} else if (damageSource is "Actor") {
 				// Actor damaged by another actor
-				scoreTokenItem.Amount += 128;
+				scoreTokenItem.Amount += DMG_ActorOther;
 				console.printf("%s damaged by %s", e.thing.GetClassName(), damageSource.GetClassName());
 			} else {
 				// Actor damaged by other means
-				scoreTokenItem.Amount += 256;
+				scoreTokenItem.Amount += DMG_Other;
 				console.printf("%s damaged by other means", e.thing.GetClassName());
 			}
 		}
 	}
-	
+
 	override void RenderUnderlay(RenderEvent e)
 	{
 		let ti = ThinkerIterator.Create("DamageNumObj", Thinker.STAT_USER);
