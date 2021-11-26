@@ -14,7 +14,7 @@ class DamageHandler : EventHandler
 	const DMG_ActorOther = 8;
 	const DMG_Other = 9;
 
-	const DEBUG = false;
+	const DEBUG = 0;
 
 	override void OnRegister() {
 		gl_proj = new("Le_GlScreen");
@@ -34,7 +34,7 @@ class DamageHandler : EventHandler
 		AwardDamagePoints(e);
 	}
 
-	override void WorldTHingDied(WorldEvent e) {
+	override void WorldThingDied(WorldEvent e) {
 		Super.WorldThingDied(e);
 		AwardDamagePoints(e, true);
 	}
@@ -57,8 +57,8 @@ class DamageHandler : EventHandler
 			}
 
 			if (inflictor is "ExplosiveBarrel") {
-				if (damageSource.target is "PlayerPawn") {
-					if (damageSource.target == players[i].mo) {
+				if (damageSource is "PlayerPawn") {
+					if (damageSource == players[i].mo) {
 						// Actor damaged by barrel destroyed by this player
 						scoreTokenItem.Amount += DMG_PlayerThisBarrel;
 						if (DEBUG) {
